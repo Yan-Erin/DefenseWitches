@@ -1,10 +1,13 @@
 import random
 from cmu_112_graphics import *
+import winsound
 #from 15112 website
 def appStarted(app):
+    winsound.PlaySound('public/BGM01.wav', winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP)
     app.grass= app.loadImage("public/grass.png")
     app.walkPath= app.loadImage("public/walkPath.png")
-    app.L = calculateMap(6,10)
+    app.target =app.loadImage("public/Target.png")
+    app.L,app.s = calculateMap(6,10)
 
 def make2dList(rows, cols):
     return [ ([0] * cols) for row in range(rows) ]
@@ -38,7 +41,7 @@ def calculateMap(row, col):
     s=random.randint(0,row)
     if add1s(L,c,0,(s,col-1)):
         print(L)
-        return L
+        return L,s
     else:
         return None
 
@@ -49,6 +52,10 @@ def redrawAll(app,canvas):
                 canvas.create_image((col+1)*50,row*50, image=ImageTk.PhotoImage(app.grass))
             if app.L[row][col]==1:
                 canvas.create_image((col+1)*50,row*50, image=ImageTk.PhotoImage(app.walkPath))
+            print(app.s, row)
+            if row==app.s and col == len(app.L[0])-1:
+                print("hi")
+                canvas.create_image((col+1)*50,row*50-5, image=ImageTk.PhotoImage(app.target))
 runApp(width=550, height=300)
 
 
