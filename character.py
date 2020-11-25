@@ -17,23 +17,23 @@ class Daisy(App):
         self.range=1
         self.i=0
         self.direction="front"
-    def daisyAttack(canvas, self, dir):
-        if dir=="front":
+    def daisyAttack(self, canvas, direction):
+        if direction=="front":
             if self.i%self.speed==0:
                 canvas.create_image(self.cx,self.cy, image=ImageTk.PhotoImage(self.DaisyFront1))
             else:
                 canvas.create_image(self.cx,self.cy, image=ImageTk.PhotoImage(self.DaisyFront2))
-        elif dir=="left":
+        elif direction=="left":
             if self.i%self.speed==0:
                 canvas.create_image(self.cx,self.cy, image=ImageTk.PhotoImage(self.DaisySide1))
             else:
                 canvas.create_image(self.cx,self.cy, image=ImageTk.PhotoImage(self.DaisySide2))
-        elif dir=="right":
+        elif direction=="right":
             if self.i%self.speed==0:
                 canvas.create_image(self.cx,self.cy, image=ImageTk.PhotoImage(self.DaisySide3))
             else:
                 canvas.create_image(self.cx,self.cy, image=ImageTk.PhotoImage(self.DaisySide4))
-        elif dir =="back":
+        elif direction =="back":
             canvas.create_image(self.cx,self.cy, image=ImageTk.PhotoImage(self.DaisyBack))
     def timerFired(self):
         self.i+=1
@@ -48,6 +48,6 @@ class Daisy(App):
             self.direction='back'
             
     def redrawAll(self,canvas):
-        Daisy.daisyAttack(canvas,self,self.direction)
+        Daisy.daisyAttack(self,canvas,self.direction)
 
 Daisy(width=200, height=200)
