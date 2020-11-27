@@ -3,6 +3,7 @@ from cmu_112_graphics import *
 import winsound
 import minions
 import time
+import character
 #from 15112 website
 def appStarted(app):
     #winsound documentation
@@ -23,6 +24,17 @@ def appStarted(app):
     app.crab1=app.loadImage('public/crab1.png')
     app.crab2=app.loadImage('public/crab2.png')
     app.crabMinionList=[]
+    
+
+    app.DaisyFront1 = app.loadImage('public/DaisyFront1.png')
+    app.DaisyFront2 =  app.loadImage('public/DaisyFront2.png')
+    app.DaisySide1= app.loadImage('public/DaisySide1.png')
+    app.DaisySide2= app.loadImage('public/DaisySide2.png')
+    app.DaisySide3 = app.DaisySide1.transpose(Image.FLIP_LEFT_RIGHT)
+    app.DaisySide4 = app.DaisySide2.transpose(Image.FLIP_LEFT_RIGHT)
+    app.DaisyBack= app.loadImage('public/DaisyBack.png')
+    app.DaisyList=[]
+
     for i in range(2):
         app.minionList.append(minions.Minion(app.c-i))
     for j in range(2):  
@@ -53,7 +65,8 @@ def valid(L,row,col):
     if i>2:
         return False
     return True
-
+def mousePressed(app,event):
+    app.DaisyList.append(character.Daisy(event.x,event.y))
 def add1s(L,row,col,sol,num=0):
     if valid(L,row,col):
         num+=1
@@ -126,12 +139,34 @@ def crabMinionWalk(crabMinion, app, canvas):
     else:
         canvas.create_image(crabMinion.cx,crabMinion.cy, image=ImageTk.PhotoImage(app.crab2))
 
+def daisyAttack(Daisy, app, canvas, direction):
+    Daisy.i+=1
+    if direction=="front":
+        if Daisy.i%Daisy.speed==0:
+            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisyFront1))
+        else:
+            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisyFront2))
+    elif direction=="left":
+        if Daisy.i%Daisy.speed==0:
+            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide1))
+        else:
+            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide2))
+    elif direction=="right":
+        if Daisy.i%Daisy.speed==0:
+            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide3))
+        else:
+            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide4))
+    elif direction =="back":
+        canvas.create_image(Daisy.cx, Daisy.cy, image=ImageTk.PhotoImage(app.DaisyBack))
+
 def redrawAll(app,canvas):
     drawMap(app,canvas)
     for i in app.minionList:
         minionWalk(i,app, canvas)
     for j in app.crabMinionList:
         crabMinionWalk(j,app, canvas)
+    for k in app.DaisyList:
+        daisyAttack(k, app, canvas, "front")
 runApp(width=800, height=600)
 
 

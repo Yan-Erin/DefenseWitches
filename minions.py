@@ -19,8 +19,6 @@ class Minion(object):
         self.i=0
     def calculateNextDir(self, L):
         (col,row)= getCell(self.cx, self.cy)
-        print(row,col)
-        print (L[row][col], "look")
         moves=[(1,0),(-1,0), (0,-1), (0,1)]
         for move in moves:
             if row+move[0] >=0 and col+move[1]>=0 and row+move[0] < len(L) and col+move[1]<len(L[0]) and L[row+move[0]][col+move[1]]>0 and  L[row+move[0]][col+move[1]]>L[row][col]:
