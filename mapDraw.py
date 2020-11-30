@@ -17,8 +17,13 @@ def appStarted(app):
     app.L=b[0]
     app.s= b[1]
     app.c=b[2]
-
+    app.points=160
     app.counter=0
+
+    app.bar= app.loadImage('public/bar.png')
+    app.pauseButton= app.loadImage('public/pauseButton.png')
+    app.paused=False
+
     app.minionRight1=app.loadImage('public/minion1.png')
     app.minionRight2=app.loadImage('public/minion2.png')
     app.minionList=[]
@@ -35,6 +40,7 @@ def appStarted(app):
     app.DaisySide3 = app.DaisySide1.transpose(Image.FLIP_LEFT_RIGHT)
     app.DaisySide4 = app.DaisySide2.transpose(Image.FLIP_LEFT_RIGHT)
     app.DaisyBack= app.loadImage('public/DaisyBack.png')
+    app.explode= app.loadImage('public/explosionDaisy.png')
     app.DaisyList=[]
 
     app.menuOpenButton = app.loadImage("public/menuOpenButton.png")
@@ -72,6 +78,9 @@ def valid(L,row,col):
     return True
 def mousePressed(app,event):
     app.towerChoice=None
+    if event.x>675 and event.x<725 and  event.y>25 and event.y<75:
+        app.paused=not app.paused
+        print(app.paused)
     if event.x>725 and event.x<775 and event.y>25 and event.y<75:
         print("hi")
         app.menu=not app.menu
@@ -90,7 +99,20 @@ def mouseDragged(app,event):
 def mouseReleased(app, event):
     if  app.menu==True and len(app.DaisyList)>0 and app.DaisyList[len(app.DaisyList) -1].placed==False:
         app.DaisyList[len(app.DaisyList) -1].placed=True
-        print(app.DaisyList[len(app.DaisyList) -1].placed)
+        k=app.DaisyList[len(app.DaisyList) -1]
+        r,c =getCell(k.cx,k.cy)[0]
+        r1,c1 =getCell(k.cx,k.cy)[1]
+        r2,c2 =getCell(k.cx,k.cy)[2]
+        print(app.points<160)
+        if  app.points<160:
+            app.DaisyList[-1].isValid=False
+            app.DaisyList.remove(k)
+        elif (app.L[c][r]!=0 or app.L[c1][r1]!=0 or app.L[c2][r2]!=0) and (k.placed==True):
+            app.DaisyList[-1].isValid=False
+            app.DaisyList.remove(k)
+        else:
+            app.DaisyList[-1].isValid=True
+            app.points-=k.price
 def add1s(L,row,col,sol,num=0):
     if valid(L,row,col):
         num+=1
@@ -142,7 +164,8 @@ def drawMap(app,canvas):
                 canvas.create_image((col+1)*50,(row+2)*50-5, image=ImageTk.PhotoImage(app.target))
 
 def minionWalk(Minion,app, canvas):
-    Minion.i+=1
+    if not app.paused:
+        Minion.i+=1
     if Minion.i%Minion.speed==0:
         #print("1")
         canvas.create_image(Minion.cx,Minion.cy, image=ImageTk.PhotoImage(app.minionRight1))
@@ -151,9 +174,9 @@ def minionWalk(Minion,app, canvas):
         Minion.cy+=(x*50)
     else:
         canvas.create_image(Minion.cx,Minion.cy, image=ImageTk.PhotoImage(app.minionRight2))
-
 def crabMinionWalk(crabMinion, app, canvas):
-    crabMinion.i+=1
+    if not app.paused:
+        crabMinion.i+=1
     if crabMinion.i%crabMinion.speed==0:
         #print("1")
         canvas.create_image(crabMinion.cx,crabMinion.cy, image=ImageTk.PhotoImage(app.crab1))
@@ -164,23 +187,42 @@ def crabMinionWalk(crabMinion, app, canvas):
         canvas.create_image(crabMinion.cx,crabMinion.cy, image=ImageTk.PhotoImage(app.crab2))
 
 def daisyAttack(Daisy, app, canvas, direction):
-    Daisy.i+=1
+    if not app.paused:
+        Daisy.i+=1
     if Daisy.placed==True and direction=="front":
         if Daisy.i%Daisy.speed==0:
+            shot=Daisy.shoot(app.minionList,app.crabMinionList)
+            if shot!=None:
+                canvas.create_image(shot[0], shot[1], image=ImageTk.PhotoImage(app.explode))
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisyFront2))
+            else:
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisyFront1))
+        else:
             canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisyFront1))
-        else:
-            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisyFront2))
     elif Daisy.placed==True and direction=="left":
+        shot=Daisy.shoot(app.minionList,app.crabMinionList)
         if Daisy.i%Daisy.speed==0:
+            if shot!=None:
+                canvas.create_image(shot[0], shot[1], image=ImageTk.PhotoImage(app.explode))
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide2))
+            else:
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide1))
+        else:
             canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide1))
-        else:
-            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide2))
     elif Daisy.placed==True and direction=="right":
+        shot=Daisy.shoot(app.minionList,app.crabMinionList)
         if Daisy.i%Daisy.speed==0:
-            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide3))
+            if shot!=None:
+                canvas.create_image(shot[0], shot[1], image=ImageTk.PhotoImage(app.explode))
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide4))
+            else:
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide3))
         else:
-            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide4))
+            canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(app.DaisySide3))
     elif Daisy.placed==True and direction =="back":
+        shot=Daisy.shoot(app.minionList,app.crabMinionList)
+        if shot!=None:
+            canvas.create_image(shot[0], shot[1], image=ImageTk.PhotoImage(app.explode))
         canvas.create_image(Daisy.cx, Daisy.cy, image=ImageTk.PhotoImage(app.DaisyBack))
     else: 
         canvas.create_oval(Daisy.cx-Daisy.range*50,Daisy.cy-Daisy.range*50, Daisy.cx+Daisy.range*50, Daisy.cy+Daisy.range*50)
@@ -195,25 +237,36 @@ def getCell(x,y):
     y3=y+70//2
     return [(x//50-1, y//50-2), (x0//50-1, y0//50-1),(x3//50-1, y3//50-2)]
 def timerFired(app):
-    app.counter+=1
-    if app.counter%10==0:
-        print("Hi")
-        app.crabMinionList.append(minions.CrabMinion(app.c))
-        app.minionList.append(minions.Minion(app.c))
-    for k in app.DaisyList:
-        r,c =getCell(k.cx,k.cy)[0]
-        r1,c1 =getCell(k.cx,k.cy)[1]
-        r2,c2 =getCell(k.cx,k.cy)[2]
-        if (app.L[c][r]!=0 or app.L[c1][r1]!=0 or app.L[c2][r2]!=0) and k.placed==True:
-            app.DaisyList.remove(k)
+    if not app.paused:
+        app.counter+=1
+        if app.counter%50==0:
+            app.crabMinionList.append(minions.CrabMinion(app.c))
+            app.minionList.append(minions.Minion(app.c))
+        for i in app.minionList:
+            if i.health<=0:
+                app.points+=i.money
+                app.minionList.remove(i)
+        for j in app.crabMinionList:
+            if j.health<=0:
+                app.points+=j.money
+                app.crabMinionList.remove(j)
 def redrawAll(app,canvas):
     drawMap(app,canvas)
+    canvas.create_image(348, 50, image=ImageTk.PhotoImage(app.bar))
+    canvas.create_text(480, 50, text=app.points, font='Arial 18', fill="#302519")
+    canvas.create_image(700, 50, image=ImageTk.PhotoImage(app.pauseButton))
     for i in app.minionList:
+        if i.drawHealthBar==True:
+            canvas.create_rectangle(i.cx-15,i.cy-50,i.cx+15,i.cy-45, fill='grey' )
+            canvas.create_rectangle(i.cx-15,i.cy-50,i.cx+15*(i.health/i.totalHealth),i.cy-45, fill='red' )
         minionWalk(i,app, canvas)
     for j in app.crabMinionList:
+        if j.drawHealthBar==True:
+            canvas.create_rectangle(j.cx-15,j.cy-50,j.cx+15,j.cy-45, fill='grey' )
+            canvas.create_rectangle(j.cx-15,j.cy-50,j.cx+15*(j.health/j.totalHealth),j.cy-45, fill='red' )
         crabMinionWalk(j,app, canvas)
     for k in app.DaisyList:
-        daisyAttack(k, app, canvas, "front")
+        daisyAttack(k, app, canvas, k.direction)
     canvas.create_image(750, 50, image=ImageTk.PhotoImage(app.menuOpenButton))
     if app.menu==True:
         canvas.create_image(700, 125, image=ImageTk.PhotoImage(app.DaisyButton))

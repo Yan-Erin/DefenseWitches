@@ -15,14 +15,12 @@ class Minion(object):
         self.cx=50
         self.cy=100+startY*50
         self.direction="right"
-        self.speed=3
+        self.speed=4
         self.i=0
         self.health=10
         self.totalHealth=10
         self.money=10
-        self.drawHealthBar= False
-        if self.health<self.totalHealth:
-            self.drawHealthBar=True
+        self.drawHealthBar= True
     def calculateNextDir(self, L):
         (col,row)= getCell(self.cx, self.cy)
         moves=[(1,0),(0,-1),(-1,0), (0,1)]
@@ -33,8 +31,9 @@ class Minion(object):
 class CrabMinion(Minion):
     def __init__(self,startY):
         super().__init__(startY)
-        self.speed=4
-        self.health=15
+        self.speed=5
+        self.health=20
+        self.totalHealth=20
         self.money=12
         
 
