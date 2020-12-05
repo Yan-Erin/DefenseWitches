@@ -15,40 +15,19 @@ class Daisy(object):
         self.direction="front"
         self.placed=False
         self.isValid=False
-        self.clicked=False
     def shoot(self,L,P):
         a=L+P
         for i in a:
             d= distance(self.cx,self.cy,i.cx,i.cy)
             if d < self.range*50:
                 i.health-=self.attack
-                if   i.cy<self.cy:
-                    self.direction="back"
-                elif i.cx>self.cx+5 and  i.cy>self.cy :
+                if i.cx>self.cx and  i.cy>self.cy :
                     self.direction="right"
-                elif  i.cx<self.cx-5  and  i.cy>self.cy :
+                elif  i.cx<self.cx  and  i.cy>self.cy :
                     self.direction="left"
                 else:
-                    self.direction="front"
+                    self.direction="back"
                 return (i.cx,i.cy)
-    def upgrade(self):
-        self.range+=0.5
-        self.attack=2.5
-class Chloe(Daisy):
-    def __init__(self,x,y):
-        super().__init__(x,y)
-        self.attack=1
-        self.speed=1
-        self.range=1.5
-        self.price=240
-    def shoot(self,L,P):
-        a=L+P
-        bo=False
-        for i in a:
-            d= distance(self.cx,self.cy,i.cx,i.cy)
-            if d < self.range*50:
-                bo=True
-                i.health-=self.attack
-        return bo
+
         
 
