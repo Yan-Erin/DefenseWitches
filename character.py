@@ -22,8 +22,10 @@ class Daisy(object):
             d= distance(self.cx,self.cy,i.cx,i.cy)
             if d < self.range*50:
                 i.health-=self.attack
-                if   i.cy<self.cy:
-                    self.direction="back"
+                if   i.cy<self.cy and i.cx>self.cx+5:
+                    self.direction="back right"
+                elif i.cy<self.cy and i.cx<self.cx+5:
+                    self.direction="back left"
                 elif i.cx>self.cx+5 and  i.cy>self.cy :
                     self.direction="right"
                 elif  i.cx<self.cx-5  and  i.cy>self.cy :

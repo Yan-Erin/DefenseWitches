@@ -14,7 +14,6 @@ def getCell(x,y):
         #bottom right
         x3=x+50//2
         y3=y+70//2
-        print((x//50-1, y//50-2), (x0//50-1, y0//50-1),(x3//50-1, y3//50-2))
         return [(x//50-1, y//50-2), (x0//50-1, y0//50-1),(x3//50-1, y3//50-2)]
 def add1s(L,row,col,sol,num=0):
         if valid(L,row,col):
@@ -80,7 +79,7 @@ def addPondandTrees(L):
                     L[i+2][j+2]="w"
                     L[i+2][j+1]="w"
                     L[i][j+2]="w"
-
+#taken from 15112 website 
 def make2dList(rows, cols):
         return [ ([0] * cols) for row in range(rows) ]
 
@@ -114,7 +113,6 @@ class SplashScreenMode(Mode):
         canvas.create_image(400, 300, image=ImageTk.PhotoImage(mode.start))
 
     def mousePressed(mode, event):
-        print(event.x,event.y)
         if event.x>58 and event.x<262 and event.y>265 and event.y<313:
             mode.app.setActiveMode(mode.app.gameMode)
         elif event.x>58 and event.x<262 and event.y>457 and event.y<500:
@@ -165,7 +163,12 @@ class GameMode(Mode):
         mode.DaisySide2= mode.loadImage('public/DaisySide2.png')
         mode.DaisySide3 = mode.DaisySide1.transpose(Image.FLIP_LEFT_RIGHT)
         mode.DaisySide4 = mode.DaisySide2.transpose(Image.FLIP_LEFT_RIGHT)
-        mode.DaisyBack= mode.loadImage('public/DaisyBack.png')
+        mode.DaisyBack1= mode.loadImage('public/DaisyBack2.png')
+        mode.DaisyBack2= mode.loadImage('public/DaisyBack1.png')
+        mode.DaisyBack3 = mode.DaisyBack1.transpose(Image.FLIP_LEFT_RIGHT)
+        mode.DaisyBack4 = mode.DaisyBack2.transpose(Image.FLIP_LEFT_RIGHT)
+        mode.DaisyBack1= mode.loadImage('public/DaisyBack2.png')
+        mode.DaisyBack2= mode.loadImage('public/DaisyBack1.png')
         mode.explode= mode.loadImage('public/explosionDaisy.png')
         mode.DaisyUpgrade= mode.loadImage('public/DaisyUpgrade.png')
         mode.DaisyList=[]
@@ -377,11 +380,26 @@ class GameMode(Mode):
                     canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisySide3))
             else:
                 canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisySide3))
-        elif Daisy.placed==True and direction =="back" and not mode.paused and (not mode.gameOver):
+        elif Daisy.placed==True and direction=="back right"and not mode.paused and (not mode.gameOver):
             shot=Daisy.shoot(mode.minionList,mode.crabMinionList)
-            if shot!=None and not mode.paused and (not mode.gameOver):
-                canvas.create_image(shot[0], shot[1], image=ImageTk.PhotoImage(mode.explode))
-            canvas.create_image(Daisy.cx, Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyBack))
+            if Daisy.i%Daisy.speed==0 and not mode.paused and (not mode.gameOver):
+                if shot!=None and not mode.paused and (not mode.gameOver):
+                    canvas.create_image(shot[0], shot[1], image=ImageTk.PhotoImage(mode.explode))
+                    canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyBack4))
+                else:
+                    canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyBack3))
+            else:
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyBack3))
+        elif Daisy.placed==True and direction=="back left"and not mode.paused and (not mode.gameOver):
+            shot=Daisy.shoot(mode.minionList,mode.crabMinionList)
+            if Daisy.i%Daisy.speed==0 and not mode.paused and (not mode.gameOver):
+                if shot!=None and not mode.paused and (not mode.gameOver):
+                    canvas.create_image(shot[0], shot[1], image=ImageTk.PhotoImage(mode.explode))
+                    canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyBack2))
+                else:
+                    canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyBack1))
+            else:
+                canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyBack1))
         else: 
             canvas.create_oval(Daisy.cx-Daisy.range*50,Daisy.cy-Daisy.range*50, Daisy.cx+Daisy.range*50, Daisy.cy+Daisy.range*50)
             canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyFront1))
@@ -451,6 +469,8 @@ class GameMode(Mode):
             canvas.create_text(400, 300, text="PAUSED", font='Arial 40', fill="#302519")
         if mode.gameOver==True:
             canvas.create_image(400,300, image= ImageTk.PhotoImage(mode.GameOverText))
+
+#taken from 15112 website and altered
 class HelpMode(Mode):
     def appStarted(mode):
         mode.instruction= mode.loadImage("public/instruction.png")
@@ -459,7 +479,7 @@ class HelpMode(Mode):
 
     def mousePressed(mode, event):
         mode.app.setActiveMode(mode.app.gameMode)
-
+#taken from 15112 website and altered
 class MyModalApp(ModalApp):
     def appStarted(app):
         app.splashScreenMode = SplashScreenMode()
