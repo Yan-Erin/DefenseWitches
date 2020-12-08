@@ -15,7 +15,7 @@ def getCell(x,y):
         x3=x+50//2
         y3=y+70//2
         return [(x//50-1, y//50-2), (x0//50-1, y0//50-1),(x3//50-1, y3//50-2)]
-def add1s(L,row,col,sol,num=0):
+def add1s(L,row,col,sol,num=0):#inspired by knights tour
         if valid(L,row,col):
             num+=1
             L[row][col]=num
@@ -23,9 +23,9 @@ def add1s(L,row,col,sol,num=0):
                 return True
             moves= [(0,1),(1,0),(0,-1), (-1,0)]
             if row >= sol[0]:
-                move = random.choices(moves, weights= (11,3,2,7), k=1)[0]
+                move = random.choices(moves, weights= (10,3,2,7), k=1)[0]
             else:
-                move = random.choices(moves, weights= (11,7,2,3) ,k=1)[0]
+                move = random.choices(moves, weights= (10,7,2,3) ,k=1)[0]
             i=0
             while not (valid(L,row+move[0], col+move[1])):
                 i+=1
@@ -33,9 +33,9 @@ def add1s(L,row,col,sol,num=0):
                 if i > 500:
                     return False
                 if row >= sol[0]:
-                    move = random.choices(moves, weights= (10,3,2,7),k=1)[0]
+                    move = random.choices(moves, weights= (11,3,2,7),k=1)[0]
                 else:
-                    move = random.choices(moves, weights= (10,7,2,3),k=1)[0]
+                    move = random.choices(moves, weights= (11,7,2,3),k=1)[0]
             if add1s(L, row+move[0], col+move[1], sol, num+1) == True:
                 return True
             else:
@@ -50,7 +50,7 @@ def calculateMap(row, col):
     while abs(c-s)<3:
         s=random.randint(0,row)
     if add1s(L,c,0,(s,sc)):
-        if L[s][sc]>85:
+        if L[s][sc]>90:
             print(L)
             return L,(s,sc),c
         else:
@@ -106,6 +106,8 @@ def valid(L,row,col):
     if i>2:
         return False
     return True
+
+
 class SplashScreenMode(Mode):
     def appStarted(mode):
         mode.start= mode.loadImage("public/StartPage.png")
@@ -113,20 +115,26 @@ class SplashScreenMode(Mode):
         canvas.create_image(400, 300, image=ImageTk.PhotoImage(mode.start))
 
     def mousePressed(mode, event):
+        print(event.y)
         if event.x>58 and event.x<262 and event.y>265 and event.y<313:
             mode.app.setActiveMode(mode.app.gameMode)
         elif event.x>58 and event.x<262 and event.y>457 and event.y<500:
             mode.app.setActiveMode(mode.app.helpMode)
+        elif event.x>58 and event.x<262 and event.y>330 and event.y<375:
+            mode.app.setActiveMode(mode.app.optionsScreen)
 class GameMode(Mode):
     def appStarted(mode):
+        print(mode.app.unlimitedMoney)
         #winsound documentation
-        #winsound.PlaySound('public/BGM01.wav', winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP)
-        mode.grass= mode.loadImage("public/grass.png")
-        mode.walkPath= mode.loadImage("public/walkPath.png")
-        mode.target =mode.loadImage("public/Target.png")
-        mode.tree= mode.loadImage("public/Tree.png")
-        mode.water= mode.loadImage("public/water.jpg")
+        if mode.app.bgMusic==True:
+            winsound.PlaySound('public/BGM01.wav', winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP) #music from https://www.youtube.com/watch?v=3PytsOJqyoc
+        mode.grass= mode.loadImage("public/grass.png") # from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.walkPath= mode.loadImage("public/walkPath.png") #from https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.target =mode.loadImage("public/Target.png") #From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.tree= mode.loadImage("public/Tree.png") #From https://favpng.com/png_view/trees-drawing-watercolor-painting-tree-pencil-sketch-png/URn9j9Cz
+        mode.water= mode.loadImage("public/water.jpg") # from https://apkpure.com/defense-witches/jp.newgate.game.android.dw
         b = calculateMap(10,15)
+
         while type(b)!= tuple:
             b= calculateMap(10,15)
         addPondandTrees(b[0])
@@ -139,57 +147,61 @@ class GameMode(Mode):
         mode.counter=0
         mode.lives=20
 
-        mode.bar= mode.loadImage('public/bar.png')
-        mode.pauseButton= mode.loadImage('public/pauseButton.png')
+        mode.bar= mode.loadImage('public/bar.png') # from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.pauseButton= mode.loadImage('public/pauseButton.png') #From https://apkpure.com/defense-witches/jp.newgate.game.android.dw
         mode.paused=False
-        mode.GameOverText=mode.loadImage('public/GameOverText.png')
+        mode.GameOverText=mode.loadImage('public/GameOverText.png') #photoshoped by me
         mode.gameOver=False
 
         mode.waveNumber=0
         mode.minionWave=20
         mode.wave=[(3,5), (8,4),(4,7),(9,10),(4,16)]
-        mode.minionRight1=mode.loadImage('public/minion1.png')
-        mode.minionRight2=mode.loadImage('public/minion2.png')
+        mode.minionRight1=mode.loadImage('public/minion1.png') # from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.minionRight2=mode.loadImage('public/minion2.png') # from https://baudattitude.com/2012/07/10/witch-touching/
         mode.minionList=[]
 
-        mode.crab1=mode.loadImage('public/crab1.png')
-        mode.crab2=mode.loadImage('public/crab2.png')
+        mode.crab1=mode.loadImage('public/crab1.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.crab2=mode.loadImage('public/crab2.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
         mode.crabMinionList=[]
         
 
-        mode.DaisyFront1 = mode.loadImage('public/DaisyFront1.png')
-        mode.DaisyFront2 =  mode.loadImage('public/DaisyFront2.png')
-        mode.DaisySide1= mode.loadImage('public/DaisySide1.png')
-        mode.DaisySide2= mode.loadImage('public/DaisySide2.png')
+        mode.DaisyFront1 = mode.loadImage('public/DaisyFront1.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.DaisyFront2 =  mode.loadImage('public/DaisyFront2.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.DaisySide1= mode.loadImage('public/DaisySide1.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.DaisySide2= mode.loadImage('public/DaisySide2.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
         mode.DaisySide3 = mode.DaisySide1.transpose(Image.FLIP_LEFT_RIGHT)
         mode.DaisySide4 = mode.DaisySide2.transpose(Image.FLIP_LEFT_RIGHT)
-        mode.DaisyBack1= mode.loadImage('public/DaisyBack2.png')
-        mode.DaisyBack2= mode.loadImage('public/DaisyBack1.png')
+        mode.DaisyBack1= mode.loadImage('public/DaisyBack2.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.DaisyBack2= mode.loadImage('public/DaisyBack1.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
         mode.DaisyBack3 = mode.DaisyBack1.transpose(Image.FLIP_LEFT_RIGHT)
         mode.DaisyBack4 = mode.DaisyBack2.transpose(Image.FLIP_LEFT_RIGHT)
-        mode.DaisyBack1= mode.loadImage('public/DaisyBack2.png')
-        mode.DaisyBack2= mode.loadImage('public/DaisyBack1.png')
-        mode.explode= mode.loadImage('public/explosionDaisy.png')
-        mode.DaisyUpgrade= mode.loadImage('public/DaisyUpgrade.png')
+        mode.DaisyBack1= mode.loadImage('public/DaisyBack2.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.DaisyBack2= mode.loadImage('public/DaisyBack1.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.explode= mode.loadImage('public/explosionDaisy.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.DaisyUpgrade= mode.loadImage('public/DaisyUpgrade.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
         mode.DaisyList=[]
         mode.d=0
 
-        mode.blueExplosion= mode.loadImage('public/chloeAttack.png')
-        mode.ChloeFront1 = mode.loadImage('public/Chloe1.png')
-        mode.ChloeFront2 =  mode.loadImage('public/Chloe2.png')
-        mode.ChloeFront3 = mode.loadImage('public/Chloe3.png')
-        mode.ChloeButton=  mode.loadImage("public/chloeMenuButton.png")  
-        mode.ChloeUpgrade= mode.loadImage('public/ChloeUpgrade.png') 
+        mode.blueExplosion= mode.loadImage('public/chloeAttack.png')# from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.ChloeFront1 = mode.loadImage('public/Chloe1.png')# from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.ChloeFront2 =  mode.loadImage('public/Chloe2.png')# from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.ChloeFront3 = mode.loadImage('public/Chloe3.png')# from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.ChloeButton=  mode.loadImage("public/chloeMenuButton.png")  # from https://baudattitude.com/2012/07/10/witch-touching/
+        mode.ChloeUpgrade= mode.loadImage('public/ChloeUpgrade.png') # from https://www.youtube.com/watch?v=szHTFvsXR-8&ab_channel=AndroidGamerTMG
         mode.ChloeList=[]
     
-        mode.menuOpenButton = mode.loadImage("public/menuOpenButton.png")
+        mode.menuOpenButton = mode.loadImage("public/menuOpenButton.png")# from https://baudattitude.com/2012/07/10/witch-touching/
 
         mode.menu=False
         mode.towerChoice=None
 
-        mode.DaisyButton = mode.loadImage("public/DaisymenuOpen.png")
+        mode.DaisyButton = mode.loadImage("public/DaisymenuOpen.png")#From https://www.youtube.com/watch?v=szHTFvsXR-8&ab_channel=AndroidGamerTMG
         mode.minionList.append(minions.Minion(mode.c))
         mode.crabMinionList.append(minions.CrabMinion(mode.c))
+    def keyPressed(mode,event):
+        if event.keycode==32:
+            print("hi")
+            GameMode.appStarted(mode)
     def mousePressed(mode,event):
         mode.towerChoice=None
         if event.x>675 and event.x<725 and  event.y>25 and event.y<75:
@@ -202,10 +214,8 @@ class GameMode(Mode):
             if event.x>660 and event.x<740 and event.y>78 and event.y<173:
                 mode.towerChoice="Daisy"
             elif event.x>580 and event.x<660 and event.y>78 and event.y<173:
-                print("Hi")
                 mode.towerChoice="Chloe"
         for i in mode.DaisyList:
-            print(mode.d)
             if event.x> i.cx-25 and event.x<i.cx+25 and event.y>i.cy-35 and event.y<i.cy+35 and mode.d<1:
                 i.clicked=not i.clicked
                 if i.clicked==True:
@@ -216,16 +226,18 @@ class GameMode(Mode):
                 if event.x>750 and event.x<800 and event.y<450 and event.y>350:
                     i.clicked=False
                     mode.d-=1
-                if event.x>77 and event.x<235 and event.y>511 and event.y<567 and mode.points>160:
-                    i.upgrade()
-                    mode.points-=160
+                if event.x>77 and event.x<235 and event.y>511 and event.y<567 :
+                    if mode.app.unlimitedMoney==False and mode.points>160:
+                        i.upgrade()
+                        mode.points-=160
+                    elif mode.app.unlimitedMoney:
+                        i.upgrade()
                 if event.x>318 and event.x<490 and event.y>511 and event.y<567:
                     mode.DaisyList.remove(i)
                     mode.points+=128
                     mode.d-=1
         for c in mode.ChloeList:
             if event.x> c.cx-25 and event.x<c.cx+25 and event.y>c.cy-35 and event.y<c.cy+35 and mode.d<1:
-                print("ho")
                 c.clicked=not c.clicked
                 if c.clicked==True:
                     mode.d+=1
@@ -235,9 +247,12 @@ class GameMode(Mode):
                 if event.x>750 and event.x<800 and event.y<450 and event.y>350:
                     c.clicked=False
                     mode.d-=1
-                if event.x>77 and event.x<235 and event.y>511 and event.y<567 and mode.points>160:
-                    c.upgrade()
-                    mode.points-=160
+                if event.x>77 and event.x<235 and event.y>511 and event.y<567:
+                    if mode.app.unlimitedMoney==False and mode.points>160:
+                        c.upgrade()
+                        mode.points-=160
+                    elif mode.app.unlimitedMoney:
+                        c.upgrade()
                 if event.x>318 and event.x<490 and event.y>511 and event.y<567:
                     mode.ChloeList.remove(c)
                     mode.points+=128
@@ -262,7 +277,7 @@ class GameMode(Mode):
             r,c =getCell(k.cx,k.cy)[0]
             r1,c1 =getCell(k.cx,k.cy)[1]
             r2,c2 =getCell(k.cx,k.cy)[2]
-            if  mode.points<160:
+            if  mode.points<160 and (mode.app.unlimitedMoney==False):
                 mode.DaisyList[-1].isValid=False
                 mode.DaisyList.remove(k)
             elif (mode.L[c][r]!=0 or mode.L[c1][r1]!=0 or mode.L[c2][r2]!=0) and (k.placed==True):
@@ -273,14 +288,15 @@ class GameMode(Mode):
                 mode.L[c][r]="d"
                 mode.L[c1][r1]="d"
                 mode.L[c2][r2]="d"
-                mode.points-=k.price
+                if mode.app.unlimitedMoney==False:
+                    mode.points-=k.price
         elif  mode.menu==True and mode.towerChoice=="Chloe" and len(mode.ChloeList)>0 and mode.ChloeList[len(mode.ChloeList) -1].placed==False:
             mode.ChloeList[len(mode.ChloeList) -1].placed=True
             k=mode.ChloeList[len(mode.ChloeList) -1]
             r,c =getCell(k.cx,k.cy)[0]
             r1,c1 =getCell(k.cx,k.cy)[1]
             r2,c2 =getCell(k.cx,k.cy)[2]
-            if  mode.points<k.price:
+            if  mode.points<k.price and mode.app.unlimitedMoney==False:
                 mode.ChloeList[-1].isValid=False
                 mode.ChloeList.remove(k)
             elif (mode.L[c][r]!=0 or mode.L[c1][r1]!=0 or mode.L[c2][r2]!=0) and (k.placed==True):
@@ -291,7 +307,8 @@ class GameMode(Mode):
                 mode.L[c][r]="d"
                 mode.L[c1][r1]="d"
                 mode.L[c2][r2]="d"
-                mode.points-=k.price
+                if mode.app.unlimitedMoney==False:
+                    mode.points-=k.price
     def drawMap(mode,canvas):
         for row in range(len(mode.L)):
             for col in range(len(mode.L[0])):
@@ -313,7 +330,10 @@ class GameMode(Mode):
         if Minion.i%Minion.speed==0:
             canvas.create_image(Minion.cx,Minion.cy, image=ImageTk.PhotoImage(mode.minionRight1))
             if not mode.paused and not mode.gameOver:
-                (x,y)=Minion.calculateNextDir(mode.L)
+                if mode.app.minionShortestPath==True:
+                    (x,y)=Minion.calcShortestPath2(mode.L)
+                else:
+                    (x,y)=Minion.calculateNextDir(mode.L)
                 Minion.cx+=(y*50)
                 Minion.cy+=(x*50)
         else:
@@ -324,7 +344,10 @@ class GameMode(Mode):
         if crabMinion.i%crabMinion.speed==0:
             canvas.create_image(crabMinion.cx,crabMinion.cy, image=ImageTk.PhotoImage(mode.crab1))
             if not mode.paused and (not mode.gameOver):
-                (x,y)=crabMinion.calculateNextDir(mode.L)
+                if mode.app.minionShortestPath==True:
+                    (x,y)=crabMinion.calcShortestPath2(mode.L)
+                else:
+                    (x,y)=crabMinion.calculateNextDir(mode.L)
                 crabMinion.cx+=(y*50)
                 crabMinion.cy+=(x*50)
         else:
@@ -404,7 +427,6 @@ class GameMode(Mode):
             canvas.create_oval(Daisy.cx-Daisy.range*50,Daisy.cy-Daisy.range*50, Daisy.cx+Daisy.range*50, Daisy.cy+Daisy.range*50)
             canvas.create_image(Daisy.cx,Daisy.cy, image=ImageTk.PhotoImage(mode.DaisyFront1))
     def timerFired(mode):
-        print(mode.ChloeList)
         if mode.lives<=0:
             mode.gameOver=True
         if not mode.paused and (not mode.gameOver):
@@ -469,7 +491,6 @@ class GameMode(Mode):
             canvas.create_text(400, 300, text="PAUSED", font='Arial 40', fill="#302519")
         if mode.gameOver==True:
             canvas.create_image(400,300, image= ImageTk.PhotoImage(mode.GameOverText))
-
 #taken from 15112 website and altered
 class HelpMode(Mode):
     def appStarted(mode):
@@ -479,12 +500,43 @@ class HelpMode(Mode):
 
     def mousePressed(mode, event):
         mode.app.setActiveMode(mode.app.gameMode)
+
+class OptionsScreen(Mode):
+    def appStarted(mode):
+        mode.options=mode.loadImage("public/OptionsScreen.png")
+        mode.minionShortestPath=False
+        mode.bgMusic=False
+        mode.unlimitedMoney=False
+    def redrawAll(mode,canvas):
+        canvas.create_image(400, 300, image=ImageTk.PhotoImage(mode.options))
+        if mode.bgMusic==True:
+            canvas.create_oval(633-7,156-7,633+7,156+7,fill="white")
+        if  mode.minionShortestPath==True:
+            canvas.create_oval(633-7,244-7,633+7,244+7, fill="white")
+        if mode.unlimitedMoney==True:
+            canvas.create_oval(633-7,310-7,633+7,310+7,fill="white")
+    def mousePressed(mode, event):
+        if event.x>349 and event.x<482 and event.y>395 and event.y<437:
+            mode.app.minionShortestPath=mode.minionShortestPath
+            mode.app.bgMusic=mode.bgMusic
+            mode.app.unlimitedMoney=mode.unlimitedMoney
+            mode.app.setActiveMode(mode.app.gameMode)
+        if event.x>633-10 and event.x<633+10 and event.y>156-10 and event.y<156+10:
+            mode.bgMusic=not mode.bgMusic
+        if event.x>633-10 and event.x<633+10 and event.y>244-20 and event.y<244+10:
+            mode.minionShortestPath= not mode.minionShortestPath
+        if event.x>633-10 and event.x<633+10 and event.y>310-20 and event.y<310+10:
+            mode.unlimitedMoney= not mode.unlimitedMoney
 #taken from 15112 website and altered
 class MyModalApp(ModalApp):
     def appStarted(app):
+        app.bgMusic= False
+        app.minionShortestPath=False
+        app.unlimitedMoney=False
         app.splashScreenMode = SplashScreenMode()
         app.gameMode = GameMode()
         app.helpMode = HelpMode()
+        app.optionsScreen= OptionsScreen()
         app.setActiveMode(app.splashScreenMode)
         app.timerDelay = 50
 app = MyModalApp(width=800, height=600)
