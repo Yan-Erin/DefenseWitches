@@ -7,6 +7,7 @@
 Just the mapDraw.py, character.py, minion.py, and the public folder.
 Install Winsound and uncomment line 123 in mapDraw.py for bg music!!!
 Run mapDraw.py to play
+Press Space button for new map
 
 ## Built With
 Python
