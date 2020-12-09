@@ -30,7 +30,6 @@ def add1s(L,row,col,sol,num=0):#inspired by knights tour
             i=0
             while not (valid(L,row+move[0], col+move[1])):
                 i+=1
-                #print(move)
                 if i > 500:
                     return False
                 if row >= sol[0]:
@@ -52,7 +51,6 @@ def add1s(L,row,col,sol,num=0):#inspired by knights tour
 def harderAdd1(L,row,col,sol, visted):
     if (row,col)==sol:
         L[row][col]=1
-        print(sol)
         return True
     moves= [(0,1),(1,0),(0,-1), (-1,0)]
     for move in moves:
@@ -71,7 +69,6 @@ def solveMap(L,r,c,s,sc): #inspired by 15112
         if (row,col)==(targetRow,targetCol): return True
         for drow,dcol in [(0,1),(1,0),(-1,0),(0,-1)]:
             if  isValid(L, row+drow,col+dcol):
-                print("hi")
                 if solve(row+drow,col+dcol): return True
         visited.remove((row,col))
         return False
@@ -180,7 +177,6 @@ class SplashScreenMode(Mode):
         canvas.create_image(400, 300, image=ImageTk.PhotoImage(mode.start))
 
     def mousePressed(mode, event):
-        print(event.y)
         if event.x>58 and event.x<262 and event.y>265 and event.y<313:
             mode.app.setActiveMode(mode.app.gameMode)
         elif event.x>58 and event.x<262 and event.y>457 and event.y<500:
@@ -192,7 +188,6 @@ class SplashScreenMode(Mode):
 
 class GameMode(Mode):
     def appStarted(mode):
-        print(mode.app.unlimitedMoney)
         #winsound documentation
         if mode.app.bgMusic==True:
             winsound.PlaySound('public/BGM01.wav', winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP) #music from https://www.youtube.com/watch?v=3PytsOJqyoc
@@ -214,7 +209,6 @@ class GameMode(Mode):
         except:
             pass
         addPondandTrees(b[0])
-        print(b[0])
         mode.L=b[0]
         mode.s= b[1]
         mode.c=b[2]
@@ -285,11 +279,9 @@ class GameMode(Mode):
         mode.towerChoice=None
         if event.x>675 and event.x<725 and  event.y>25 and event.y<75:
             mode.paused=not mode.paused
-            print(mode.paused)
         if event.x>725 and event.x<775 and event.y>25 and event.y<75:
             mode.menu=not mode.menu
         if mode.menu==True:
-            print(event.x,event.y)
             if event.x>660 and event.x<740 and event.y>78 and event.y<173:
                 mode.towerChoice="Daisy"
             elif event.x>580 and event.x<660 and event.y>78 and event.y<173:
@@ -622,7 +614,6 @@ class OptionsScreen(Mode):
         elif mode.difficulty==5:
             canvas.create_oval(295-14,435-14,295+14,435+14)  
     def mousePressed(mode, event):
-        print(event.x,event.y)
         if event.x>349 and event.x<482 and event.y>486 and event.y<530:
             mode.app.minionShortestPath=mode.minionShortestPath
             mode.app.bgMusic=mode.bgMusic
