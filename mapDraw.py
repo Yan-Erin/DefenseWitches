@@ -17,7 +17,8 @@ def getCell(x,y):
         return [(x//50-1, y//50-2), (x0//50-1, y0//50-1),(x3//50-1, y3//50-2)]
 def add1s(L,row,col,sol,num=0):#inspired by knights tour
         if valid(L,row,col):
-            num+=1
+            if isinstance(num, int):
+                num+=1
             L[row][col]=num
             if (row,col)==sol:
                 return True
@@ -36,12 +37,54 @@ def add1s(L,row,col,sol,num=0):#inspired by knights tour
                     move = random.choices(moves, weights= (11,3,2,7),k=1)[0]
                 else:
                     move = random.choices(moves, weights= (11,7,2,3),k=1)[0]
-            if add1s(L, row+move[0], col+move[1], sol, num+1) == True:
-                return True
+            if isinstance(num, int):
+                if add1s(L, row+move[0], col+move[1], sol, num+1) == True:
+                    return True
+                else:
+                    L[row][col]= 0
+                    num-=1
             else:
-                L[row][col]= 0
-                num-=1
+                if add1s(L, row+move[0], col+move[1], sol, num+1) == True:
+                    return True
+                else:
+                    L[row][col]= 0
         return False
+def harderAdd1(L,row,col,sol, visted):
+    if (row,col)==sol:
+        L[row][col]=1
+        print(sol)
+        return True
+    moves= [(0,1),(1,0),(0,-1), (-1,0)]
+    for move in moves:
+        move=random.choices(moves, weights= (10,3,2,7), k=1)[0]
+        if (valid(L,row+move[0], col+move[1])):
+            L[row+move[0]][col+move[1]]=1
+            visted.add((row+move[0],col+move[1]))
+            harderAdd1(L, row+move[0], col+move[1], sol,visted)
+def solveMap(L,r,c,s,sc): #inspired by 15112
+    visited = []
+    targetRow,targetCol =s,sc
+    def solve(row,col):
+        if (row,col) in visited: 
+            return False
+        visited.append((row,col))
+        if (row,col)==(targetRow,targetCol): return True
+        for drow,dcol in [(0,1),(1,0),(-1,0),(0,-1)]:
+            if  isValid(L, row+drow,col+dcol):
+                print("hi")
+                if solve(row+drow,col+dcol): return True
+        visited.remove((row,col))
+        return False
+    return visited if solve(r,c) else None
+def isValid(L,row,col):
+    if 0>row or row>=len(L):
+        return False
+    elif 0>col or col>=len(L[0]):
+        return False
+    elif L[row][col]==0:
+        return False
+    else:
+        return True
 def calculateMap(row, col,diff):
     L= make2dList(row,col)
     c=random.randint(0,row)
@@ -49,7 +92,7 @@ def calculateMap(row, col,diff):
     sc=random.randint(col-3,col-1)
     while abs(c-s)<3:
         s=random.randint(0,row)
-    if add1s(L,c,0,(s,sc)):
+    if diff<5 and add1s(L,c,0,(s,sc)):
         if diff<=3:
             if L[s][sc]>22*diff and L[s][sc]<35*diff:
                 return L,(s,sc),c
@@ -58,8 +101,28 @@ def calculateMap(row, col,diff):
                 return L,(s,sc),c
         else:
             return None
+    elif diff==5:
+        visted=set((c,0))
+        harderAdd1(L,c,0,(s,sc), visted)
+        L[c][0]=1
+
+        v=solveMap(L,c,0,s,sc)
+        while v==None:
+            L= make2dList(row,col)
+            visted=set((c,0))
+            harderAdd1(L,c,0,(s,sc), visted)
+            L[c][0]=1
+            v=solveMap(L,c,0,s,sc)
+        for i in range(len(L)):
+            for j in range(len(L[0])):
+                if (i,j) in v:
+                    L[i][j]=v.index((i,j))+1
+                else:
+                    L[i][j]=0
+
+        return(L,(s,sc),c)
     else:
-        return None
+        return None 
 def addPondandTrees(L):
     for i in range(len(L)):
         for j in range(len(L[0])):
@@ -71,7 +134,6 @@ def addPondandTrees(L):
             if (L[i][j] ==0 and L[i+1][j]==0 and L[i][j+1]==0 and L[i+1][j+1]==0 and L[i+2][j]==0 and L[i+1][j+2]==0 and L[i+2][j+2]==0
             and L[i+2][j+1]==0 and L[i][j+2]==0):
                 choice1 = random.choices([0,1], weights=(10,12),k=1)
-                print(choice1)
                 if choice1[0] ==1:
                     L[i][j] ="w"
                     L[i+1][j]="w"
@@ -113,7 +175,7 @@ def valid(L,row,col):
 
 class SplashScreenMode(Mode):
     def appStarted(mode):
-        mode.start= mode.loadImage("public/StartPage.png")
+        mode.start= mode.loadImage("public/StartPage.png") #from https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
     def redrawAll(mode, canvas):
         canvas.create_image(400, 300, image=ImageTk.PhotoImage(mode.start))
 
@@ -145,11 +207,14 @@ class GameMode(Mode):
         mode.target =mode.loadImage("public/Target.png") #From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
         mode.water= mode.loadImage("public/water.jpg") # from https://apkpure.com/defense-witches/jp.newgate.game.android.dw
         b = calculateMap(10,15,mode.app.difficulty)
-
         while type(b)!= tuple:
             b= calculateMap(10,15,mode.app.difficulty)
+        try:
+            deadEnds(b[0])
+        except:
+            pass
         addPondandTrees(b[0])
-
+        print(b[0])
         mode.L=b[0]
         mode.s= b[1]
         mode.c=b[2]
@@ -338,7 +403,7 @@ class GameMode(Mode):
                     canvas.create_image((col+1)*50,(row+2)*50, image=ImageTk.PhotoImage(mode.water))
                 elif mode.L[row][col]=="*":
                     canvas.create_image((col+1)*50,(row+2)*50, image=ImageTk.PhotoImage(mode.tree))
-                elif isinstance(mode.L[row][col],int) and mode.L[row][col]>0:
+                elif isinstance(mode.L[row][col],int) and mode.L[row][col]>0 or mode.L[row][col]=="end":
                     canvas.create_image((col+1)*50,(row+2)*50, image=ImageTk.PhotoImage(mode.walkPath))
                 if row==mode.s[0] and col == mode.s[1]:
                     canvas.create_image((col+1)*50,(row+2)*50-5, image=ImageTk.PhotoImage(mode.target))
@@ -554,6 +619,8 @@ class OptionsScreen(Mode):
             canvas.create_oval(553-14,435-14,553+14,435+14)   
         elif mode.difficulty==4:
             canvas.create_oval(633-14,435-14,633+14,435+14)   
+        elif mode.difficulty==5:
+            canvas.create_oval(295-14,435-14,295+14,435+14)  
     def mousePressed(mode, event):
         print(event.x,event.y)
         if event.x>349 and event.x<482 and event.y>486 and event.y<530:
@@ -579,6 +646,8 @@ class OptionsScreen(Mode):
             mode.difficulty=3
         if event.x>633-7 and event.x<633+7 and event.y>435-7 and event.y<435+7:
             mode.difficulty=4
+        if event.x>295-7 and event.x<295+7 and event.y>435-7 and event.y<435+7:
+            mode.difficulty=5
 #taken from 15112 website and altered
 class MyModalApp(ModalApp):
     def appStarted(app):

@@ -42,7 +42,7 @@ class Minion(object):
         minim=99999
         m=(0,0)
         for move in moves:
-            if col+move[1]<len(L[0]) and  row+move[0]<len(L) and (isinstance(L[row+move[0]][col+move[1]], int) and row+move[0] >=0 and col+move[1]>=0 and L[row+move[0]][col+move[1]]>L[row][col] and L[row+move[0]][col+move[1]]<minim
+            if col+move[1]<len(L[0]) and  row+move[0]<len(L) and row+move[0] >=0 and col+move[1]>=0 and (isinstance(L[row+move[0]][col+move[1]], int) and L[row+move[0]][col+move[1]]>L[row][col] and L[row+move[0]][col+move[1]]<minim
             and L[row+move[0]][col+move[1]]>0 and  L[row+move[0]][col+move[1]]>L[row][col]):
                 m=move
                 minim=L[row+move[0]][col+move[1]]
