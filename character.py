@@ -16,8 +16,13 @@ class Daisy(object):
         self.placed=False
         self.isValid=False
         self.clicked=False
+        self.attackmethod=True
     def shoot(self,L,P):
         a=L+P
+        if self.attackmethod==False:
+            a=a[::-1]
+        else:
+            a=L+P
         for i in a:
             d= distance(self.cx,self.cy,i.cx,i.cy)
             if d < self.range*50:

@@ -23,16 +23,18 @@ class Minion(object):
         self.totalHealth=10
         self.money=10
         self.drawHealthBar= True
+        self.visited=set()
     def calcShortestPath2(self,L):
         (col,row)= getCell(self.cx, self.cy)
         moves=[(1,0),(0,-1),(-1,0), (0,1)]
-        maxim=-1
+        minim=-1
         m=(0,0)
         for move in moves:
-            if col+move[1]<len(L[0]) and  row+move[0]<len(L) and (isinstance(L[row+move[0]][col+move[1]], int) and row+move[0] >=0 and col+move[1]>=0 and L[row+move[0]][col+move[1]]>L[row][col] and L[row+move[0]][col+move[1]]>maxim
-            and L[row+move[0]][col+move[1]]>0 and  L[row+move[0]][col+move[1]]>L[row][col]):
+            if col+move[1]<len(L[0]) and  row+move[0]<len(L) and (isinstance(L[row+move[0]][col+move[1]], int) and row+move[0] >=0 and col+move[1]>=0 and L[row+move[0]][col+move[1]]>L[row][col] and L[row+move[0]][col+move[1]]>minim
+            and L[row+move[0]][col+move[1]]>0 and  L[row+move[0]][col+move[1]]>L[row][col]) and L[row+move[0]][col+move[1]] not in self.visited:
+                self.visited.add(L[row+move[0]][col+move[1]])
                 m=move
-                maxim=L[row+move[0]][col+move[1]]
+                minim=L[row+move[0]][col+move[1]]
         return m 
     def calculateNextDir(self, L):
         (col,row)= getCell(self.cx, self.cy)

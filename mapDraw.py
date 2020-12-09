@@ -42,7 +42,7 @@ def add1s(L,row,col,sol,num=0):#inspired by knights tour
                 L[row][col]= 0
                 num-=1
         return False
-def calculateMap(row, col):
+def calculateMap(row, col,diff):
     L= make2dList(row,col)
     c=random.randint(0,row)
     s=random.randint(0,row)
@@ -50,9 +50,12 @@ def calculateMap(row, col):
     while abs(c-s)<3:
         s=random.randint(0,row)
     if add1s(L,c,0,(s,sc)):
-        if L[s][sc]>90:
-            print(L)
-            return L,(s,sc),c
+        if diff<=3:
+            if L[s][sc]>22*diff and L[s][sc]<35*diff:
+                return L,(s,sc),c
+        elif diff==4:
+            if L[s][sc]>22*diff:
+                return L,(s,sc),c
         else:
             return None
     else:
@@ -122,21 +125,29 @@ class SplashScreenMode(Mode):
             mode.app.setActiveMode(mode.app.helpMode)
         elif event.x>58 and event.x<262 and event.y>330 and event.y<375:
             mode.app.setActiveMode(mode.app.optionsScreen)
+        elif event.x>58 and event.x<262 and event.y>400 and event.y<441:
+            mode.app.setActiveMode(mode.app.creditsPage)
+
 class GameMode(Mode):
     def appStarted(mode):
         print(mode.app.unlimitedMoney)
         #winsound documentation
         if mode.app.bgMusic==True:
             winsound.PlaySound('public/BGM01.wav', winsound.SND_ALIAS | winsound.SND_ASYNC | winsound.SND_LOOP) #music from https://www.youtube.com/watch?v=3PytsOJqyoc
-        mode.grass= mode.loadImage("public/grass.png") # from https://baudattitude.com/2012/07/10/witch-touching/
-        mode.walkPath= mode.loadImage("public/walkPath.png") #from https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        if mode.app.color==False:
+            mode.grass= mode.loadImage("public/grass.png") # from https://baudattitude.com/2012/07/10/witch-touching/
+            mode.walkPath= mode.loadImage("public/walkPath.png") #from https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+            mode.tree= mode.loadImage("public/Tree.png") #From https://favpng.com/png_view/trees-drawing-watercolor-painting-tree-pencil-sketch-png/URn9j9Cz
+        else:
+            mode.grass= mode.loadImage("public/border.png") # from https://www.youtube.com/watch?v=CmCCAxJpzI8&ab_channel=DwNicola
+            mode.walkPath= mode.loadImage("public/Path3.png") #from https://www.youtube.com/watch?v=CmCCAxJpzI8&ab_channel=DwNicola
+            mode.tree= mode.loadImage("public/obstacle.png") #From https://www.youtube.com/watch?v=CmCCAxJpzI8&ab_channel=DwNicola
         mode.target =mode.loadImage("public/Target.png") #From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
-        mode.tree= mode.loadImage("public/Tree.png") #From https://favpng.com/png_view/trees-drawing-watercolor-painting-tree-pencil-sketch-png/URn9j9Cz
         mode.water= mode.loadImage("public/water.jpg") # from https://apkpure.com/defense-witches/jp.newgate.game.android.dw
-        b = calculateMap(10,15)
+        b = calculateMap(10,15,mode.app.difficulty)
 
         while type(b)!= tuple:
-            b= calculateMap(10,15)
+            b= calculateMap(10,15,mode.app.difficulty)
         addPondandTrees(b[0])
 
         mode.L=b[0]
@@ -179,6 +190,8 @@ class GameMode(Mode):
         mode.DaisyBack2= mode.loadImage('public/DaisyBack1.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
         mode.explode= mode.loadImage('public/explosionDaisy.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
         mode.DaisyUpgrade= mode.loadImage('public/DaisyUpgrade.png')#From https://www.aweapps.com/defense-witches-quick-review-2koma-manga-tower-defense
+        mode.FirstButton=mode.loadImage('public/FirstButton.png')#i made this one myself
+        mode.LastButton=mode.loadImage('public/LastButton.png')#i made this one myself
         mode.DaisyList=[]
         mode.d=0
 
@@ -200,8 +213,9 @@ class GameMode(Mode):
         mode.crabMinionList.append(minions.CrabMinion(mode.c))
     def keyPressed(mode,event):
         if event.keycode==32:
-            print("hi")
             GameMode.appStarted(mode)
+        if event.keycode==8:
+            mode.app.setActiveMode(mode.app.splashScreenMode)
     def mousePressed(mode,event):
         mode.towerChoice=None
         if event.x>675 and event.x<725 and  event.y>25 and event.y<75:
@@ -236,6 +250,9 @@ class GameMode(Mode):
                     mode.DaisyList.remove(i)
                     mode.points+=128
                     mode.d-=1
+                if event.x>320 and event.x<420 and event.y>450 and event.y<490:
+                    i.attackmethod=not i.attackmethod
+
         for c in mode.ChloeList:
             if event.x> c.cx-25 and event.x<c.cx+25 and event.y>c.cy-35 and event.y<c.cy+35 and mode.d<1:
                 c.clicked=not c.clicked
@@ -257,6 +274,8 @@ class GameMode(Mode):
                     mode.ChloeList.remove(c)
                     mode.points+=128
                     mode.d-=1
+
+
         if mode.towerChoice=="Daisy":
             mode.DaisyList.append(character.Daisy(event.x,event.y))
         elif mode.towerChoice=="Chloe":
@@ -477,6 +496,10 @@ class GameMode(Mode):
             if k.clicked==True:
                 canvas.create_oval(k.cx-k.range*50,k.cy-k.range*50, k.cx+k.range*50, k.cy+ k.range*50)
                 canvas.create_image(400,475, image=ImageTk.PhotoImage(mode.DaisyUpgrade))
+                if k.attackmethod ==True:
+                    canvas.create_image(370,470, image=ImageTk.PhotoImage(mode.FirstButton))
+                else:
+                    canvas.create_image(370,470, image=ImageTk.PhotoImage(mode.LastButton))
         for c in mode.ChloeList:
             GameMode.chloeAttack(c, mode, canvas)
             if c.clicked==True:
@@ -500,13 +523,19 @@ class HelpMode(Mode):
 
     def mousePressed(mode, event):
         mode.app.setActiveMode(mode.app.gameMode)
-
+class CreditScreen (Mode):
+    def appStarted(mode):
+        mode.credit=mode.loadImage("public/Credits.png")
+    def redrawAll(mode,canvas):
+        canvas.create_image(400, 300, image=ImageTk.PhotoImage(mode.credit))
 class OptionsScreen(Mode):
     def appStarted(mode):
         mode.options=mode.loadImage("public/OptionsScreen.png")
         mode.minionShortestPath=False
         mode.bgMusic=False
         mode.unlimitedMoney=False
+        mode.color=False
+        mode.difficulty=4
     def redrawAll(mode,canvas):
         canvas.create_image(400, 300, image=ImageTk.PhotoImage(mode.options))
         if mode.bgMusic==True:
@@ -515,11 +544,24 @@ class OptionsScreen(Mode):
             canvas.create_oval(633-7,244-7,633+7,244+7, fill="white")
         if mode.unlimitedMoney==True:
             canvas.create_oval(633-7,310-7,633+7,310+7,fill="white")
+        if mode.color==True:
+            canvas.create_oval(633-7,374-7,633+7,374+7,fill="white")
+        if mode.difficulty==1:
+            canvas.create_oval(370-14,435-14,370+14,435+14)
+        elif mode.difficulty==2:
+            canvas.create_oval(456-14,435-14,456+14,435+14)
+        elif mode.difficulty==3:
+            canvas.create_oval(553-14,435-14,553+14,435+14)   
+        elif mode.difficulty==4:
+            canvas.create_oval(633-14,435-14,633+14,435+14)   
     def mousePressed(mode, event):
-        if event.x>349 and event.x<482 and event.y>395 and event.y<437:
+        print(event.x,event.y)
+        if event.x>349 and event.x<482 and event.y>486 and event.y<530:
             mode.app.minionShortestPath=mode.minionShortestPath
             mode.app.bgMusic=mode.bgMusic
             mode.app.unlimitedMoney=mode.unlimitedMoney
+            mode.app.color=mode.color
+            mode.app.difficulty=mode.difficulty
             mode.app.setActiveMode(mode.app.gameMode)
         if event.x>633-10 and event.x<633+10 and event.y>156-10 and event.y<156+10:
             mode.bgMusic=not mode.bgMusic
@@ -527,16 +569,29 @@ class OptionsScreen(Mode):
             mode.minionShortestPath= not mode.minionShortestPath
         if event.x>633-10 and event.x<633+10 and event.y>310-20 and event.y<310+10:
             mode.unlimitedMoney= not mode.unlimitedMoney
+        if event.x>633-10 and event.x<633+10 and event.y>374-20 and event.y<374+10:
+            mode.color= not mode.color
+        if event.x>370-7 and event.x<370+7 and event.y>435-7 and event.y<435+7:
+            mode.difficulty=1
+        if event.x>456-7 and event.x<456+7 and event.y>435-7 and event.y<435+7:
+            mode.difficulty=2
+        if event.x>553-7 and event.x<553+7 and event.y>435-7 and event.y<435+7:
+            mode.difficulty=3
+        if event.x>633-7 and event.x<633+7 and event.y>435-7 and event.y<435+7:
+            mode.difficulty=4
 #taken from 15112 website and altered
 class MyModalApp(ModalApp):
     def appStarted(app):
         app.bgMusic= False
         app.minionShortestPath=False
         app.unlimitedMoney=False
+        app.color=False
+        app.difficulty=4
         app.splashScreenMode = SplashScreenMode()
         app.gameMode = GameMode()
         app.helpMode = HelpMode()
         app.optionsScreen= OptionsScreen()
+        app.creditsPage= CreditScreen()
         app.setActiveMode(app.splashScreenMode)
         app.timerDelay = 50
 app = MyModalApp(width=800, height=600)
